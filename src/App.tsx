@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CalendarDays, Database, Eye, Info, Lock, RefreshCw, ShieldAlert, X } from 'lucide-react';
+import { CalendarDays, Database, Eye, Info, Lock, RefreshCw, ShieldAlert, Undo2, X } from 'lucide-react';
 import { AuthLockScreen, AuthSession } from './components/AuthLockScreen';
 import { BackupConfirmationModal } from './components/BackupConfirmationModal';
 import { BeneficiariesDashboard } from './components/BeneficiariesDashboard';
@@ -248,6 +248,43 @@ function AuthenticatedLedgerApp({
       events.forEach((ev) => window.removeEventListener(ev, resetTimer));
     };
   }, [autoLockMinutes, performServerLogout]);
+
+  // Daily reminder check
+  const lastRemindedDateRef = useRef<string>('');
+  useEffect(() => {
+    const reminderTime = state.dailyReminderTime;
+    if (!reminderTime || !/^\d{2}:\d{2}$/.test(reminderTime)) return;
+
+    const checkReminder = () => {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const currentTimeStr = `${hours}:${minutes}`;
+
+      if (currentTimeStr === reminderTime) {
+        const todayIso = now.toISOString().slice(0, 10);
+        if (lastRemindedDateRef.current === todayIso) return;
+
+        const hasEntriesToday = state.entries.some((e) => {
+          if (e.date === todayIso) return true;
+          const [y, m, d] = todayIso.split('-').map(Number);
+          if (e.day === d && (!e.date || e.date.slice(0, 7) === todayIso.slice(0, 7))) {
+            return true;
+          }
+          return false;
+        });
+
+        if (!hasEntriesToday) {
+          lastRemindedDateRef.current = todayIso;
+          notify('تذكير يومي: لم تقم بتسجيل أي قيود لليوم الحالي حتى الآن.');
+        }
+      }
+    };
+
+    const intervalId = window.setInterval(checkReminder, 30_000);
+    checkReminder();
+    return () => window.clearInterval(intervalId);
+  }, [state.dailyReminderTime, state.entries, notify]);
 
   // Load application state from local SQLite database (with one-time legacy browser migration)
   useEffect(() => {
@@ -1437,6 +1474,23 @@ function AuthenticatedLedgerApp({
                 <span className="sm:hidden">{readOnly ? 'للقراءة فقط' : 'قراءة فقط'}</span>
               </button>
 
+              <button
+                type="button"
+                onClick={handleUndo}
+                disabled={readOnly || history.length === 0}
+                title="تراجع عن آخر تعديل"
+                className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[40px] rounded-xl text-xs sm:text-sm font-extrabold bg-[#ede6d6] hover:bg-[#e4dac3] text-[#173f2e] border border-[#dcd1b8] disabled:opacity-45 disabled:pointer-events-none transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              >
+                <Undo2 className="w-4 h-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">تراجع عن التعديل</span>
+                <span className="sm:hidden">تراجع</span>
+                {history.length > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#173f2e] text-white tabular-nums">
+                    {history.length}
+                  </span>
+                )}
+              </button>
+
               <PWAInstallButton onOpenDesktopGuide={() => setWindowsGuideOpen(true)} />
 
               <HeaderToolsMenu
@@ -1853,6 +1907,9 @@ function AuthenticatedLedgerApp({
           onSessionUpdated={onSessionUpdated}
           onAutoLockChange={(mins) =>
             setState((prev) => ({ ...prev, autoLockMinutes: mins }))
+          }
+          onDailyReminderChange={(time) =>
+            setState((prev) => ({ ...prev, dailyReminderTime: time }))
           }
           onHighContrastChange={setHighContrastEnabled}
           onOpenDatabase={() => setDatabaseModalOpen(true)}

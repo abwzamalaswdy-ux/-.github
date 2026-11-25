@@ -92,6 +92,7 @@ type ServerAppState = {
   highContrast: boolean;
   backupFrequency: BackupFrequency;
   lastBackupAt: string;
+  dailyReminderTime: string;
 };
 
 type DbFileInfo = {
@@ -125,6 +126,7 @@ const DEFAULT_SERVER_STATE: ServerAppState = {
   highContrast: false,
   backupFrequency: 'weekly',
   lastBackupAt: '',
+  dailyReminderTime: '',
 };
 
 const revokedTokenIds = new Map<string, number>();
@@ -251,6 +253,11 @@ function sanitizeServerState(raw: unknown): ServerAppState {
     }
   }
 
+  const dailyReminderTime =
+    typeof obj.dailyReminderTime === 'string' && /^\d{2}:\d{2}$/.test(obj.dailyReminderTime.trim())
+      ? obj.dailyReminderTime.trim()
+      : '';
+
   return {
     entries,
     signer: {
@@ -267,6 +274,7 @@ function sanitizeServerState(raw: unknown): ServerAppState {
     highContrast: Boolean(obj.highContrast),
     backupFrequency,
     lastBackupAt,
+    dailyReminderTime,
   };
 }
 
@@ -423,7 +431,8 @@ function readStateFromSqliteHandle(db: DatabaseSync): ServerAppState {
         row.key === 'unit' ||
         row.key === 'numeralStyle' ||
         row.key === 'backupFrequency' ||
-        row.key === 'lastBackupAt'
+        row.key === 'lastBackupAt' ||
+        row.key === 'dailyReminderTime'
       ) {
         rawState[row.key] = row.value;
       } else if (row.key === 'autoLockMinutes') {
@@ -481,6 +490,7 @@ function writeStateToDb(filePath: string, rawState: unknown): ServerAppState {
       upsertMeta.run('highContrast', clean.highContrast ? '1' : '0');
       upsertMeta.run('backupFrequency', clean.backupFrequency);
       upsertMeta.run('lastBackupAt', clean.lastBackupAt);
+      upsertMeta.run('dailyReminderTime', clean.dailyReminderTime);
       upsertMeta.run('updatedAt', new Date().toISOString());
 
       db.exec('COMMIT');

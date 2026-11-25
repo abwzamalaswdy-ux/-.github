@@ -34,6 +34,7 @@ export const DEFAULT_STATE: AppState = {
   highContrast: false,
   backupFrequency: 'weekly',
   lastBackupAt: '',
+  dailyReminderTime: '',
 };
 
 export function loadHighContrastPref(): boolean {
@@ -193,6 +194,11 @@ export function sanitizeState(raw: unknown): AppState {
     }
   }
 
+  const dailyReminderTime =
+    typeof obj.dailyReminderTime === 'string' && /^\d{2}:\d{2}$/.test(obj.dailyReminderTime.trim())
+      ? obj.dailyReminderTime.trim()
+      : '';
+
   return {
     entries,
     signer: {
@@ -209,6 +215,7 @@ export function sanitizeState(raw: unknown): AppState {
     highContrast: Boolean(obj.highContrast),
     backupFrequency,
     lastBackupAt,
+    dailyReminderTime,
   };
 }
 

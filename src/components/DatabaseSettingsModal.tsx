@@ -318,15 +318,42 @@ export function DatabaseSettingsModal({
                   <span className="block text-xs font-extrabold text-[#46534b] mb-1">
                     مسار التخزين واسم الملف (.db)
                   </span>
-                  <input
-                    type="text"
-                    dir="ltr"
-                    value={customPath}
-                    disabled={busy}
-                    onChange={(e) => setCustomPath(e.target.value)}
-                    placeholder="e.g. 2026/mansarf-ledger.db"
-                    className="w-full min-h-[40px] px-3 py-2 text-sm font-mono rounded-xl border border-[#d8dfda] bg-[#fafbf9] text-[#17211d] focus:outline-none focus:ring-2 focus:ring-[#173f2e]/30"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      dir="ltr"
+                      value={customPath}
+                      disabled={busy}
+                      onChange={(e) => setCustomPath(e.target.value)}
+                      placeholder="e.g. 2026/mansarf-ledger.db"
+                      className="w-full min-h-[40px] px-3 py-2 text-sm font-mono rounded-xl border border-[#d8dfda] bg-[#fafbf9] text-[#17211d] focus:outline-none focus:ring-2 focus:ring-[#173f2e]/30"
+                    />
+                    {canUseDevicePicker && (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={async () => {
+                          try {
+                            const handle = await pickDeviceSaveSqliteFile(
+                              customPath.split('/').pop() || 'mansarf-ledger.db'
+                            );
+                            if (handle && handle.name) {
+                              setCustomPath(handle.name);
+                              setLocationMode('open_or_create');
+                              onNotify(`تم اختيار الملف: ${handle.name}`);
+                            }
+                          } catch {
+                            // ignore user cancel
+                          }
+                        }}
+                        title="اختر ملف من جهازك عبر متصفح الملفات"
+                        className="inline-flex items-center gap-1 px-3 py-2 min-h-[40px] rounded-xl text-xs font-extrabold bg-[#e8f0eb] hover:bg-[#dce8e1] text-[#173f2e] border border-[#b7cbbe] whitespace-nowrap shrink-0"
+                      >
+                        <FolderOpen className="w-4 h-4 shrink-0" />
+                        <span>استعراض</span>
+                      </button>
+                    )}
+                  </div>
                 </label>
 
                 <label className="block">
