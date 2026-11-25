@@ -230,16 +230,6 @@ export async function restoreLocalDbBackup(
   return { state: sanitizeState(data.state), dbInfo: data.dbInfo };
 }
 
-export async function resetLocalDb(token: string): Promise<{ state: AppState; dbInfo: DbStatusInfo }> {
-  const res = await fetch('/api/db/reset', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw await parseError(res, 'تعذر إعادة تعيين قاعدة البيانات.');
-  const data = (await res.json()) as { state: unknown; dbInfo: DbStatusInfo };
-  return { state: sanitizeState(data.state), dbInfo: data.dbInfo };
-}
-
 export const BACKUP_INTERVAL_MS: Record<BackupFrequency, number> = {
   off: 0,
   daily: 24 * 60 * 60 * 1000,

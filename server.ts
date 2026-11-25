@@ -92,7 +92,6 @@ type ServerAppState = {
   highContrast: boolean;
   backupFrequency: BackupFrequency;
   lastBackupAt: string;
-  dailyReminderTime: string;
 };
 
 type DbFileInfo = {
@@ -126,7 +125,6 @@ const DEFAULT_SERVER_STATE: ServerAppState = {
   highContrast: false,
   backupFrequency: 'weekly',
   lastBackupAt: '',
-  dailyReminderTime: '',
 };
 
 const revokedTokenIds = new Map<string, number>();
@@ -253,11 +251,6 @@ function sanitizeServerState(raw: unknown): ServerAppState {
     }
   }
 
-  const dailyReminderTime =
-    typeof obj.dailyReminderTime === 'string' && /^\d{2}:\d{2}$/.test(obj.dailyReminderTime.trim())
-      ? obj.dailyReminderTime.trim()
-      : '';
-
   return {
     entries,
     signer: {
@@ -274,7 +267,6 @@ function sanitizeServerState(raw: unknown): ServerAppState {
     highContrast: Boolean(obj.highContrast),
     backupFrequency,
     lastBackupAt,
-    dailyReminderTime,
   };
 }
 
@@ -431,8 +423,7 @@ function readStateFromSqliteHandle(db: DatabaseSync): ServerAppState {
         row.key === 'unit' ||
         row.key === 'numeralStyle' ||
         row.key === 'backupFrequency' ||
-        row.key === 'lastBackupAt' ||
-        row.key === 'dailyReminderTime'
+        row.key === 'lastBackupAt'
       ) {
         rawState[row.key] = row.value;
       } else if (row.key === 'autoLockMinutes') {
@@ -490,7 +481,6 @@ function writeStateToDb(filePath: string, rawState: unknown): ServerAppState {
       upsertMeta.run('highContrast', clean.highContrast ? '1' : '0');
       upsertMeta.run('backupFrequency', clean.backupFrequency);
       upsertMeta.run('lastBackupAt', clean.lastBackupAt);
-      upsertMeta.run('dailyReminderTime', clean.dailyReminderTime);
       upsertMeta.run('updatedAt', new Date().toISOString());
 
       db.exec('COMMIT');
@@ -1163,32 +1153,6 @@ async function startServer() {
       res.json({ ok: true, state: saved, dbInfo });
     } catch (err) {
       res.status(400).json({ error: (err as Error).message || 'تعذر استعادة النسخة الاحتياطية.' });
-    }
-  });
-
-  app.post('/api/db/reset', requireAuth, (_req, res) => {
-    try {
-      const target = getActiveDbTarget();
-      const currentState = readStateFromDb(target.fullPath);
-      if (currentState.readOnly) {
-        res.status(403).json({
-          error: 'وضع القراءة فقط نشط — قم بإلغائه قبل إعادة تعيين قاعدة البيانات.',
-        });
-        return;
-      }
-
-      const emptyState: ServerAppState = {
-        ...DEFAULT_SERVER_STATE,
-        backupFrequency: currentState.backupFrequency,
-        dailyReminderTime: currentState.dailyReminderTime,
-        highContrast: currentState.highContrast,
-      };
-
-      const saved = writeStateToDb(target.fullPath, emptyState);
-      const dbInfo = buildDbStatusInfo(target, saved.entries.length);
-      res.json({ ok: true, state: saved, dbInfo });
-    } catch (err) {
-      res.status(500).json({ error: (err as Error).message || 'تعذر إعادة تعيين قاعدة البيانات.' });
     }
   });
 

@@ -38,7 +38,6 @@ export interface AppState {
   highContrast?: boolean;
   backupFrequency?: BackupFrequency;
   lastBackupAt?: string;
-  dailyReminderTime?: string;
 }
 
 export interface BeneficiaryRow {

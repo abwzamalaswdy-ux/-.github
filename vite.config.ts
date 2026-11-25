@@ -4,14 +4,12 @@ import fs from 'fs';
 import path from 'path';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import { viteSingleFile } from 'vite-plugin-singlefile';
 
 export default defineConfig(() => {
   return {
     plugins: [
       react(),
       tailwindcss(),
-      viteSingleFile(),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['icon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],

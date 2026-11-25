@@ -31,7 +31,6 @@ interface SecuritySettingsModalProps {
   onClose: () => void;
   onSessionUpdated: (next: AuthSession) => void;
   onAutoLockChange: (minutes: number) => void;
-  onDailyReminderChange: (time: string) => void;
   onHighContrastChange: (enabled: boolean) => void;
   onOpenDatabase?: () => void;
   onRestoreBackup: (restoredState: AppState) => void;
@@ -48,7 +47,6 @@ export function SecuritySettingsModal({
   onClose,
   onSessionUpdated,
   onAutoLockChange,
-  onDailyReminderChange,
   onHighContrastChange,
   onOpenDatabase,
   onRestoreBackup,
@@ -419,49 +417,6 @@ export function SecuritySettingsModal({
               <option value={30}>بعد 30 دقيقة</option>
               <option value={0}>معطّل</option>
             </select>
-          </section>
-
-          {/* Daily Reminder Time Setting */}
-          <section className="p-4 rounded-2xl border border-[#d9dfdb] bg-white flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-start gap-2.5">
-              <Clock className="w-4 h-4 text-[#173f2e] mt-0.5 shrink-0" aria-hidden="true" />
-              <div>
-                <h4 className="text-sm font-black text-[#17211d]">وقت التذكير اليومي للقيود</h4>
-                <p className="text-xs text-[#647069] mt-0.5">
-                  حدد وقتًا ليظهر لك تنبيه (تذكير) في التطبيق إذا لم تقم بتسجيل أي قيود لليوم الحالي.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="time"
-                value={state.dailyReminderTime || ''}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  onDailyReminderChange(val);
-                  onNotify(
-                    val
-                      ? `تم ضبط وقت التذكير اليومي على الساعة ${val}.`
-                      : 'تم إيقاف تذكير القيود اليومي.'
-                  );
-                }}
-                aria-label="وقت التذكير اليومي"
-                className="min-h-[38px] px-3 py-1.5 rounded-xl border border-[#d8dfda] bg-[#f7f8f6] text-xs font-extrabold text-[#173f2e]"
-              />
-              {state.dailyReminderTime && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onDailyReminderChange('');
-                    onNotify('تم إيقاف تذكير القيود اليومي.');
-                  }}
-                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#f7f8f6] text-[#647069] border border-[#d9dfdb]"
-                >
-                  إيقاف
-                </button>
-              )}
-            </div>
           </section>
 
           {/* Local SQLite Database Manager Shortcut */}

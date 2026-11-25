@@ -12,7 +12,6 @@ import {
   Link2,
   RefreshCw,
   RotateCcw,
-  ShieldAlert,
   Upload,
   X,
 } from 'lucide-react';
@@ -53,7 +52,6 @@ interface DatabaseSettingsModalProps {
   onCreateBackupNow: () => Promise<void>;
   onDownloadBackupFile: (relativePath: string) => Promise<void>;
   onRestoreSavedBackup: (relativePath: string) => Promise<void>;
-  onResetDatabase: () => Promise<void>;
   onNotify: (msg: string) => void;
 }
 
@@ -78,7 +76,6 @@ export function DatabaseSettingsModal({
   onCreateBackupNow,
   onDownloadBackupFile,
   onRestoreSavedBackup,
-  onResetDatabase,
   onNotify,
 }: DatabaseSettingsModalProps) {
   const [customPath, setCustomPath] = useState(dbInfo?.relativePath || 'mansarf-ledger.db');
@@ -87,7 +84,6 @@ export function DatabaseSettingsModal({
   );
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [resetStep, setResetStep] = useState<0 | 1 | 2>(0);
   const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -322,42 +318,15 @@ export function DatabaseSettingsModal({
                   <span className="block text-xs font-extrabold text-[#46534b] mb-1">
                     مسار التخزين واسم الملف (.db)
                   </span>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      dir="ltr"
-                      value={customPath}
-                      disabled={busy}
-                      onChange={(e) => setCustomPath(e.target.value)}
-                      placeholder="e.g. 2026/mansarf-ledger.db"
-                      className="w-full min-h-[40px] px-3 py-2 text-sm font-mono rounded-xl border border-[#d8dfda] bg-[#fafbf9] text-[#17211d] focus:outline-none focus:ring-2 focus:ring-[#173f2e]/30"
-                    />
-                    {canUseDevicePicker && (
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={async () => {
-                          try {
-                            const handle = await pickDeviceSaveSqliteFile(
-                              customPath.split('/').pop() || 'mansarf-ledger.db'
-                            );
-                            if (handle && handle.name) {
-                              setCustomPath(handle.name);
-                              setLocationMode('open_or_create');
-                              onNotify(`تم اختيار الملف: ${handle.name}`);
-                            }
-                          } catch {
-                            // ignore user cancel
-                          }
-                        }}
-                        title="اختر ملف من جهازك عبر متصفح الملفات"
-                        className="inline-flex items-center gap-1 px-3 py-2 min-h-[40px] rounded-xl text-xs font-extrabold bg-[#e8f0eb] hover:bg-[#dce8e1] text-[#173f2e] border border-[#b7cbbe] whitespace-nowrap shrink-0"
-                      >
-                        <FolderOpen className="w-4 h-4 shrink-0" />
-                        <span>استعراض</span>
-                      </button>
-                    )}
-                  </div>
+                  <input
+                    type="text"
+                    dir="ltr"
+                    value={customPath}
+                    disabled={busy}
+                    onChange={(e) => setCustomPath(e.target.value)}
+                    placeholder="e.g. 2026/mansarf-ledger.db"
+                    className="w-full min-h-[40px] px-3 py-2 text-sm font-mono rounded-xl border border-[#d8dfda] bg-[#fafbf9] text-[#17211d] focus:outline-none focus:ring-2 focus:ring-[#173f2e]/30"
+                  />
                 </label>
 
                 <label className="block">
@@ -688,119 +657,7 @@ export function DatabaseSettingsModal({
               </div>
             )}
           </section>
-
-          {/* Danger Zone: Reset Database & Erase All Data */}
-          <section className="p-4 rounded-2xl border border-[#f0ceca] bg-[#fffcfc] space-y-3">
-            <div className="flex items-start gap-2.5">
-              <ShieldAlert className="w-4 h-4 text-[#9e3029] mt-0.5 shrink-0" aria-hidden="true" />
-              <div>
-                <h4 className="text-sm font-black text-[#9e3029]">
-                  منطقة الخطر: إعادة تعيين ومسح كافة بيانات التطبيق
-                </h4>
-                <p className="text-xs text-[#75403c] mt-0.5">
-                  حذف كافة القيود والبيانات وإعادة قاعدة البيانات إلى حالتها الفارغة الأصلية. يتطلب الإجراء تأكيدين أمنيين.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              disabled={busy || readOnly}
-              onClick={() => setResetStep(1)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-[#9e3029] hover:bg-[#822721] disabled:opacity-45 text-white transition-colors"
-            >
-              <span>إعادة تعيين ومسح كافة البيانات...</span>
-            </button>
-          </section>
         </div>
-
-        {/* Reset Confirmation Step 1 */}
-        {resetStep === 1 && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#101a14]/70 backdrop-blur-[2px]"
-          >
-            <div className="w-full max-w-md bg-white rounded-2xl border border-[#f0ceca] shadow-2xl p-6 space-y-4 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[#fff0ef] text-[#9e3029] grid place-items-center mx-auto">
-                <ShieldAlert className="w-6 h-6" />
-              </div>
-              <h4 className="text-base font-black text-[#17211d]">
-                تأكيد إعادة التعيين (الخطوة الأولى من 2)
-              </h4>
-              <p className="text-xs text-[#647069] leading-relaxed">
-                هل أنت متأكد تمامًا من رغبتك في حذف جميع القيود والبيانات الحالية؟ هذا الإجراء سيمسح كافة السجلات من قاعدة البيانات المحلية.
-              </p>
-              <div className="flex items-center justify-center gap-2.5 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setResetStep(0)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#f7f8f6] text-[#17211d] border border-[#d9dfdb]"
-                >
-                  إلغاء
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setResetStep(2)}
-                  className="px-4 py-2 rounded-xl text-xs font-extrabold bg-[#d96b63] hover:bg-[#c2574f] text-white"
-                >
-                  متابعة إلى التأكيد النهائي
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Reset Confirmation Step 2 */}
-        {resetStep === 2 && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#101a14]/70 backdrop-blur-[2px]"
-          >
-            <div className="w-full max-w-md bg-white rounded-2xl border border-[#9e3029] shadow-2xl p-6 space-y-4 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[#fff0ef] text-[#9e3029] grid place-items-center mx-auto">
-                <ShieldAlert className="w-6 h-6" />
-              </div>
-              <h4 className="text-base font-black text-[#9e3029]">
-                تحذير نهائي: مسح شامل (الخطوة الثانية والأخيرة)
-              </h4>
-              <p className="text-xs text-[#17211d] font-bold leading-relaxed">
-                هذا هو التأكيد الثاني والأخير! لا يمكن التراجع بعد إتمام هذه العملية. هل تؤكد مسح قاعدة البيانات بالكامل الآن؟
-              </p>
-              <div className="flex items-center justify-center gap-2.5 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setResetStep(0)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#f7f8f6] text-[#17211d] border border-[#d9dfdb]"
-                >
-                  إلغاء والتراجع
-                </button>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={async () => {
-                    setBusy(true);
-                    setErrorMsg('');
-                    try {
-                      await onResetDatabase();
-                      setResetStep(0);
-                      onClose();
-                    } catch (err) {
-                      setErrorMsg((err as Error).message || 'تعذر إعادة تعيين قاعدة البيانات.');
-                      setResetStep(0);
-                    } finally {
-                      setBusy(false);
-                    }
-                  }}
-                  className="px-4 py-2 rounded-xl text-xs font-black bg-[#9e3029] hover:bg-[#822721] text-white"
-                >
-                  {busy ? 'جارٍ المسح...' : 'تأكيد نهائي ومسح كافة البيانات'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-[#e8ece9] bg-[#fafbf9] flex items-center justify-between gap-2">
