@@ -1,0 +1,6 @@
+{
+  "name": "كشوفات المنصرف",
+  "description": "إدارة احترافية لكشوفات المنصرف وتجميع الكميات حسب المستفيد والتاريخ مع تقارير الطباعة والتصدير.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,636 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --green: #173f2e;
+  --green-2: #215a41;
+  --green-soft: #e8f0eb;
+  --cream: #ede6d6;
+  --paper: #ffffff;
+  --bg: #f3f1ec;
+  --ink: #17211d;
+  --muted: #647069;
+  --line: #d9dfdb;
+  --font-arabic: 'Cairo', 'Noto Sans Arabic', 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', Consolas, ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-arabic);
+    background-color: var(--bg);
+    color: var(--ink);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-arabic);
+    line-height: 1.55;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sticky ledger table enhancements */
+.ledger-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+  background: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-table th,
+.ledger-table td {
+  border-left: 1px solid #d7ddd9;
+  border-bottom: 1px solid #d7ddd9;
+  text-align: center;
+  height: 40px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.ledger-table th:first-child,
+.ledger-table td:first-child {
+  border-right: 1px solid #d7ddd9;
+}
+
+.ledger-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--green);
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.ledger-table .col-check {
+  min-width: 40px;
+  width: 40px;
+  position: sticky;
+  right: 0;
+  z-index: 5;
+}
+
+.ledger-table thead th.col-check {
+  z-index: 7;
+  background: var(--green);
+}
+
+.ledger-table tbody td.col-check {
+  background: #f5f7f5;
+}
+
+.ledger-table .col-num {
+  min-width: 42px;
+  width: 42px;
+  position: sticky;
+  right: 40px;
+  z-index: 5;
+}
+
+.ledger-table thead th.col-num {
+  z-index: 7;
+  background: var(--green);
+}
+
+.ledger-table tbody td.col-num {
+  background: #f1f4f1;
+  color: #4d5b53;
+}
+
+.ledger-table .col-name {
+  min-width: 165px;
+  width: 195px;
+  text-align: right;
+  padding-inline: 10px;
+  position: sticky;
+  right: 82px;
+  z-index: 5;
+}
+
+.ledger-table thead th.col-name {
+  z-index: 7;
+  background: var(--green);
+}
+
+.ledger-table tbody td.col-name {
+  background: var(--cream);
+  font-weight: 700;
+  color: #202c25;
+}
+
+.ledger-table tbody tr:nth-child(even) td:not(.col-name):not(.col-num):not(.col-check):not(.col-total) {
+  background: #fafbf9;
+}
+
+.ledger-table tr.summary-row td {
+  background: #e9eee9 !important;
+  font-weight: 800;
+  color: #173f2e;
+  border-bottom: 2px solid #9aada0;
+}
+
+.ledger-table tr.summary-row td.col-name {
+  background: #dfe8df !important;
+}
+
+/* Windows 10 & Tablet clean scrollbars and touch-friendly table geometry */
+.table-scroll-region {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #b7cbbe #f3f1ec;
+}
+
+.table-scroll-region::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.table-scroll-region::-webkit-scrollbar-track {
+  background: #f3f1ec;
+}
+
+.table-scroll-region::-webkit-scrollbar-thumb {
+  background: #b7cbbe;
+  border-radius: 999px;
+  border: 2px solid #f3f1ec;
+}
+
+.table-scroll-region::-webkit-scrollbar-thumb:hover {
+  background: #8aa796;
+}
+
+@media (max-width: 1180px), (pointer: coarse) {
+  .ledger-table th,
+  .ledger-table td {
+    height: 46px;
+    font-size: 13px;
+  }
+
+  .ledger-table .col-check {
+    min-width: 38px;
+    width: 38px;
+  }
+
+  .ledger-table .col-num {
+    min-width: 36px;
+    width: 36px;
+    right: 38px;
+  }
+
+  .ledger-table .col-name {
+    min-width: 132px;
+    width: 148px;
+    right: 74px;
+    padding-inline: 8px;
+  }
+
+  .ledger-table td input[data-cell] {
+    min-height: 38px;
+    font-size: 13px;
+  }
+}
+
+/* High Contrast Mode (screen only — keeps print output unchanged) */
+@media screen {
+  html.high-contrast {
+    --green: #000000;
+    --green-2: #111111;
+    --green-soft: #fff3b0;
+    --cream: #fff7cc;
+    --paper: #ffffff;
+    --bg: #ffffff;
+    --ink: #000000;
+    --muted: #111111;
+    --line: #000000;
+  }
+
+  html.high-contrast body {
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  html.high-contrast :is(a, button, input, select, textarea, [role="button"], [role="switch"], [tabindex]):focus-visible {
+    outline: 3px solid #000000 !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 5px #ffeb3b !important;
+  }
+
+  html.high-contrast header {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-bottom: 3px solid #ffeb3b !important;
+  }
+
+  html.high-contrast header p,
+  html.high-contrast header .text-\[\#d6e2da\] {
+    color: #ffffff !important;
+  }
+
+  /* Upgrade muted grays to stark black for maximum legibility in sunlight & low vision */
+  html.high-contrast .text-\[\#647069\],
+  html.high-contrast .text-\[\#46534b\],
+  html.high-contrast .text-\[\#7a847e\],
+  html.high-contrast .text-\[\#9aa79f\],
+  html.high-contrast .text-\[\#3d4a43\],
+  html.high-contrast .text-\[\#365244\],
+  html.high-contrast .text-\[\#202c25\],
+  html.high-contrast .text-\[\#17211d\],
+  html.high-contrast .text-\[\#215a41\] {
+    color: #000000 !important;
+  }
+
+  /* Deepen primary dark green surfaces/text to high-contrast ink/black */
+  html.high-contrast .bg-\[\#173f2e\] {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+
+  html.high-contrast .bg-\[\#173f2e\] * {
+    color: #ffffff !important;
+  }
+
+  html.high-contrast .text-\[\#173f2e\] {
+    color: #000000 !important;
+  }
+
+  /* Crisp high-contrast borders on cards, modals, inputs, and controls */
+  html.high-contrast :is(section, div, aside, nav, table, input, select, textarea, button)[class*="border"] {
+    border-color: #000000 !important;
+  }
+
+  html.high-contrast :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    font-weight: 700;
+  }
+
+  html.high-contrast input::placeholder,
+  html.high-contrast textarea::placeholder {
+    color: #333333 !important;
+    opacity: 1 !important;
+  }
+
+  /* Search dropdown & header input inside dark header */
+  html.high-contrast header input[type="search"] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #ffeb3b !important;
+  }
+
+  html.high-contrast header button[class*="bg-white/15"] {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+  }
+
+  /* Soft surface tints upgraded to clean white or distinct cream-yellow */
+  html.high-contrast .bg-\[\#f3f1ec\],
+  html.high-contrast .bg-\[\#f7f8f6\],
+  html.high-contrast .bg-\[\#fafbf9\],
+  html.high-contrast .bg-\[\#fcfdfc\],
+  html.high-contrast .bg-\[\#edf0ed\],
+  html.high-contrast .bg-\[\#edf1ee\],
+  html.high-contrast .bg-\[\#f5f7f5\] {
+    background-color: #ffffff !important;
+  }
+
+  html.high-contrast .bg-\[\#e8f0eb\],
+  html.high-contrast .bg-\[\#e6ece7\],
+  html.high-contrast .bg-\[\#f2f7f4\] {
+    background-color: #e6f4ea !important;
+    color: #000000 !important;
+  }
+
+  html.high-contrast .bg-\[\#fbf1df\],
+  html.high-contrast .bg-\[\#fbf6ea\],
+  html.high-contrast .bg-\[\#fff8e8\],
+  html.high-contrast .bg-\[\#ede6d6\],
+  html.high-contrast .bg-\[\#ede6d6\]\/70,
+  html.high-contrast .bg-\[\#ede6d6\]\/55 {
+    background-color: #fff3b0 !important;
+    color: #000000 !important;
+  }
+
+  html.high-contrast .text-\[\#845315\],
+  html.high-contrast .text-\[\#725020\],
+  html.high-contrast .text-\[\#645942\] {
+    color: #000000 !important;
+  }
+
+  html.high-contrast .bg-\[\#fff0ef\],
+  html.high-contrast .bg-\[\#fff5f4\] {
+    background-color: #ffd6d6 !important;
+    color: #7a0000 !important;
+    border-color: #7a0000 !important;
+  }
+
+  html.high-contrast .text-\[\#9e3029\] {
+    color: #7a0000 !important;
+  }
+
+  html.high-contrast .bg-\[\#b93f37\] {
+    background-color: #9b0000 !important;
+    color: #ffffff !important;
+  }
+
+  html.high-contrast mark {
+    background-color: #ffeb3b !important;
+    color: #000000 !important;
+    outline: 1.5px solid #000000 !important;
+  }
+
+  /* High Contrast Ledger Table */
+  html.high-contrast .ledger-table {
+    background: #ffffff !important;
+    border: 2px solid #000000;
+  }
+
+  html.high-contrast .ledger-table th,
+  html.high-contrast .ledger-table td {
+    border-left: 1.5px solid #000000 !important;
+    border-bottom: 1.5px solid #000000 !important;
+    color: #000000;
+    font-weight: 700;
+  }
+
+  html.high-contrast .ledger-table th:first-child,
+  html.high-contrast .ledger-table td:first-child {
+    border-right: 1.5px solid #000000 !important;
+  }
+
+  html.high-contrast .ledger-table thead th,
+  html.high-contrast .ledger-table thead th.col-check,
+  html.high-contrast .ledger-table thead th.col-num,
+  html.high-contrast .ledger-table thead th.col-name {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+  }
+
+  html.high-contrast .ledger-table tbody td.col-name {
+    background: #fff3b0 !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+  }
+
+  html.high-contrast .ledger-table tbody td.col-num,
+  html.high-contrast .ledger-table tbody td.col-check {
+    background: #f0f0f0 !important;
+    color: #000000 !important;
+  }
+
+  html.high-contrast .ledger-table tbody tr:nth-child(even) td:not(.col-name):not(.col-num):not(.col-check):not(.col-total) {
+    background: #eef2ee !important;
+  }
+
+  html.high-contrast .ledger-table tr.summary-row td,
+  html.high-contrast .ledger-table tr.summary-row td.col-name {
+    background: #ffeb3b !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+    border-top: 2px solid #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+  }
+
+  html.high-contrast .ledger-table td input[data-cell] {
+    border: 1px solid #555555 !important;
+    color: #000000 !important;
+    font-weight: 800;
+  }
+
+  html.high-contrast .ledger-table td input[data-cell]:focus {
+    background: #ffeb3b !important;
+    border: 2px solid #000000 !important;
+  }
+
+  html.high-contrast input[type="checkbox"] {
+    accent-color: #000000;
+    outline: 1.5px solid #000000;
+  }
+}
+
+/* Print Root hidden on screen */
+#printRoot {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  #printRoot {
+    display: block !important;
+  }
+
+  .print-page-landscape {
+    width: 287mm;
+    height: 200mm;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+    color: #17211d;
+    background: #ffffff;
+    font-family: var(--font-arabic);
+  }
+
+  .print-page-landscape:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .print-page-portrait {
+    width: 190mm;
+    min-height: 277mm;
+    margin: 0 auto;
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+    color: #17211d;
+    background: #ffffff;
+    font-family: var(--font-arabic);
+    padding-bottom: 30mm;
+  }
+
+  .print-page-portrait:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .print-title {
+    text-align: center;
+    color: #173f2e;
+    font-size: 14pt;
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 0 0 1.2mm;
+  }
+
+  .print-subtitle {
+    text-align: center;
+    color: #647069;
+    font-size: 8.5pt;
+    margin: 0 0 3mm;
+  }
+
+  .print-table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+    direction: rtl;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 0.22mm solid #839189;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.4mm 0.3mm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    font-size: 8pt;
+    height: 5.55mm;
+    line-height: 1.05;
+  }
+
+  .print-table th {
+    background: #173f2e !important;
+    color: #ffffff !important;
+    font-weight: 900;
+    height: 6.1mm;
+  }
+
+  .print-table td.name-cell {
+    background: #ede6d6 !important;
+    text-align: right;
+    font-weight: 800;
+    padding-right: 1.4mm;
+    font-size: 8.2pt;
+  }
+
+  .print-table td.total-cell {
+    font-weight: 900;
+    background: #f4f6f4 !important;
+  }
+
+  .print-table tr.total-row td {
+    background: #e6ece7 !important;
+    font-weight: 900;
+    border-top: 0.5mm solid #52685b;
+  }
+
+  /* Daily summary print table */
+  .print-daily-table {
+    border-collapse: collapse;
+    width: 100%;
+    direction: rtl;
+    margin-top: 2mm;
+  }
+
+  .print-daily-table th,
+  .print-daily-table td {
+    border: 0.25mm solid #839189;
+    text-align: center;
+    vertical-align: middle;
+    padding: 2mm 3mm;
+    font-size: 10pt;
+  }
+
+  .print-daily-table th {
+    background: #173f2e !important;
+    color: #ffffff !important;
+    font-weight: 800;
+  }
+
+  .print-daily-table tbody tr:nth-child(even) td {
+    background: #f8faf8 !important;
+  }
+
+  .print-daily-table tr.total-row td {
+    background: #e6ece7 !important;
+    font-weight: 900;
+    color: #173f2e;
+    border-top: 0.5mm solid #173f2e;
+  }
+
+  .print-signature {
+    position: absolute;
+    bottom: 0;
+    min-width: 54mm;
+    max-width: 76mm;
+    text-align: center;
+    font-size: 8.5pt;
+    line-height: 1.3;
+  }
+
+  .print-signature.pos-right {
+    right: 0;
+  }
+
+  .print-signature.pos-center {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .print-signature.pos-left {
+    left: 0;
+  }
+
+  .print-signature img {
+    display: block;
+    max-width: 42mm;
+    max-height: 12mm;
+    margin: 0 auto 1mm;
+    object-fit: contain;
+  }
+
+  .print-signature .print-name {
+    font-weight: 900;
+  }
+
+  .print-signature .print-job {
+    font-size: 7.5pt;
+    color: #4f5a53;
+  }
+
+  .print-page-meta {
+    position: absolute;
+    left: 0;
+    bottom: 1mm;
+    font-size: 7.5pt;
+    color: #68746d;
+  }
+
+  .print-page-meta strong {
+    color: #173f2e;
+  }
+}
